@@ -1,0 +1,14 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        stages: [commit]
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest (run on push)
+        entry: pytest -q
+        language: system
+        pass_filenames: false
+        stages: [push]
