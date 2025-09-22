@@ -21,7 +21,7 @@ flask --app app run
 
 Erstelle eine Datei `.env` mit folgendem Inhalt:
 ```env
-PASSWORD="meinGeheimesPasswort"
+PASSWORD="einsehrGeheimesPasswort"
 ```
 Die App liest `PASSWORD` und zeigt es auf der Startseite an.
 
@@ -64,7 +64,7 @@ pre-commit install --hook-type pre-push
 
 ### Live URL
 
-https://tagebbbuch-twin.azurewebsites.net/
+tagebbbuch-twin-e9h4gwfbf4btage9.switzerlandnorth-01.azurewebsites.net
 
 ---
 
