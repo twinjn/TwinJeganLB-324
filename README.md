@@ -33,8 +33,7 @@ Benutzende können Einträge erfassen und optional eine Stimmung als Emoji 😃 
 ---
 
 ## Ordnerstruktur
-
-```
+`
 .github/workflows/        PR CI und Deploy
 templates/                index.html
 tests/                    test_app.py
@@ -43,13 +42,13 @@ requirements.txt          Abhängigkeiten
 pytest.ini                pythonpath = .
 .pre-commit-config.yaml   Hooks Konfiguration
 .env.example              Vorlage für lokale Variablen
-```
+``
 
 ---
 
 ## Schnellstart lokal
 
-```bash
+`bash
 # einmalig Abhängigkeiten installieren
 py -m pip install -r requirements.txt
 
@@ -60,14 +59,12 @@ py -m pip install -r requirements.txt
 py -m pytest -q
 
 # App lokal starten
-py -m flask --app app run
-```
+py -m flask --app app run```
 
 Lege dazu eine Datei **.env** an, zum Beispiel
 
-```
-PASSWORD="meinGeheimesPasswort"
-```
+
+PASSWORD="sehrGeheimesPasswort"`
 
 Emoji Eingabe unter Windows
 Windows Taste und Punkt drücken, dann Smiley wählen.
@@ -77,10 +74,10 @@ Windows Taste und Punkt drücken, dann Smiley wählen.
 ## GitHub Flow in diesem Repo
 
 1. Issue mit Vorlage **Feature Anforderung** anlegen
-2. Branch aus `dev` erstellen, zum Beispiel `feature/happiness`
+2. Branch aus dev erstellen, zum Beispiel feature/happiness`
 3. Code bauen, committen, pushen
 4. PR **feature → dev** öffnen, PR CI läuft automatisch und prüft mit pytest
-5. In `dev` mergen
+5. In dev` mergen
   den Feature Branch **nicht löschen**, so verlangt es die LB
 6. Release PR **dev → main**, Merge auf `main` triggert das Deployment auf Azure
 
@@ -90,9 +87,9 @@ Windows Taste und Punkt drücken, dann Smiley wählen.
 
 ### PR CI: Tests für Pull Requests auf dev
 
-Datei: `.github/workflows/pr-ci.yml`
+Datei: .github/workflows/pr-ci.yml`
 
-```yaml
+yaml
 name: PR CI
 on:
   pull_request:
@@ -108,14 +105,14 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements.txt
       - run: pytest -q
-```
+
 
 ### Deploy auf Azure bei main
 
-Datei: `.github/workflows/deploy.yml`
+Datei: .github/workflows/deploy.yml`
 nutzt das Azure Publish Profile, kein separates Azure Login nötig
 
-```yaml
+yaml
 name: Deploy to Azure on main
 on:
   push:
@@ -147,7 +144,7 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-```
+
 
 ---
 
@@ -158,14 +155,14 @@ jobs:
 2. In **Konfiguration → Anwendungseinstellungen** Variable `PASSWORD` setzen
 3. In **Konfiguration → Allgemeine Einstellungen → Startbefehl** eintragen
   
-  ```bash
+  bash
   gunicorn --bind=0.0.0.0:$PORT --timeout 600 app:app
-  ```
+  
   
 4. In GitHub unter **Settings → Secrets and variables → Actions** anlegen
-  - `AZURE_WEBAPP_NAME`, zum Beispiel `tagebbbuch-twin`
-  - `AZURE_WEBAPP_PUBLISH_PROFILE`, kompletter XML Inhalt des Publish Profiles aus Azure
-5. Merge nach `main` löst den Deploy Workflow aus
+  - AZURE_WEBAPP_NAME, zum Beispiel tagebbbuch-twin`
+  - AZURE_WEBAPP_PUBLISH_PROFILE, kompletter XML Inhalt des Publish Profiles aus Azure
+5. Merge nach main` löst den Deploy Workflow aus
   Live prüfen unter der URL oben
 
 ---
@@ -174,13 +171,13 @@ jobs:
 
 Der Test **test_add_entry_with_happiness** prüft
 
-- POST auf `/add_entry` mit `content` und `happiness`
-- Status 302 Redirect auf `/`
-- erster Eintrag in `entries` enthält Text und das Emoji
+- POST auf /add_entry mit content und happiness`
+- Status 302 Redirect auf /
+- erster Eintrag in entries` enthält Text und das Emoji
 
-Implementierung in `app.py`
+Implementierung in app.py`
 
-```python
+python
 @app.route("/add_entry", methods=["POST"])
 def add_entry():
     content = request.form.get("content", "").strip()
@@ -188,11 +185,11 @@ def add_entry():
     if content:
         entries.append(Entry(content=content, happiness=happiness or ""))
     return redirect(url_for("index"))
-```
 
-Anzeige in `templates/index.html`
 
-```html
+Anzeige in templates/index.html`
+
+html
 <form action="/add_entry" method="post">
   <input name="content" placeholder="Eintrag" required />
   <input name="happiness" placeholder="😊" />
@@ -212,16 +209,16 @@ Anzeige in `templates/index.html`
 
 Installieren und aktivieren
 
-```bash
+bash
 py -m pip install pre-commit black
 pre-commit install
 pre-commit install --hook-type pre-push
 pre-commit run --all-files
-```
 
-Konfiguration in `.pre-commit-config.yaml`
 
-```yaml
+Konfiguration in .pre-commit-config.yaml`
+
+yaml
 repos:
   - repo: https://github.com/psf/black
     rev: 24.8.0
@@ -237,7 +234,7 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
-```
+
 
 Bei jedem Commit formatiert **black** den Code.
 Beim Push führt der Hook **pytest** aus.
@@ -265,24 +262,4 @@ Beim Push führt der Hook **pytest** aus.
   https://tagebbbuch-twin.azurewebsites.net
   
 
----
 
-## Troubleshooting
-
-**504 Gateway Timeout**
-Startbefehl wie oben setzen, danach neu deployen und Logstream prüfen.
-
-**gunicorn nicht gefunden**
-`gunicorn` in `requirements.txt` eintragen, dann neu deployen.
-
-**ModuleNotFoundError app**
-Datei heisst `app.py`, Flask Objekt heisst `app`.
-
----
-
-## Hinweise
-
-- **.env** gehört nicht ins Repo, nur **.env.example** versionieren.
-- Screenshots von PR CI und Deploy gern im Issue oder PR verlinken, das erhöht die Nachvollziehbarkeit.
-
-Viel Erfolg
