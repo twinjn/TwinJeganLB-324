@@ -1,72 +1,176 @@
-# Tagebbbuch App — LB 324 Üben
+# Tagebuch App · LB 324
 
-Diese kleine Flask App ist eine **Übungsablage** für LB 324. Sie erfüllt die Kernpunkte:
-- pre-commit formatiert Code bei jedem Commit
-- pre-push testet mit pytest
-- PRs auf `dev` lösen GitHub Actions Tests aus
-- Merge nach `main` liefert auf Azure aus (nachdem Secrets gesetzt sind)
+Kleine Flask App als Übungsablage für LB 324. Die Ablage zeigt
+* neuen Feature Flow mit Issue  Feature Branch  PR auf dev  Release nach main  
+* Tests mit pytest lokal und in GitHub Actions  
+* Auslieferung auf Azure App Service  
 
-## Start lokal
+---
 
-```bash
-pip install -r requirements.txt
-# optional: python -m venv .venv && source .venv/bin/activate
-flask --app app run
-```
+## Live URL
+https://tagebbbuch-twin.azurewebsites.net
 
-Erstelle eine Datei `.env` mit:
-```
-PASSWORD="meinGeheimesPasswort"
-```
-Die App liest `PASSWORD` nur zur Demo aus und zeigt es auf der Startseite.
+---
 
-## pre-commit Hooks installieren
+## Projektziel in einem Satz
+Benutzende können einen Texteingang im Tagebuch speichern und optional eine Stimmung als Emoji 😃 mitgeben.
 
-```bash
-pip install pre-commit
+---
+
+## Tech Stack
+* Python 3.12  Flask  
+* pytest für Tests  
+* pre commit Hooks  Formatierung und Test bei Push  
+* GitHub Actions  PR CI auf dev  Deploy auf main  
+* Azure App Service Linux  gunicorn  
+
+---
+
+## Ordnerstruktur
+.github/workflows/ # pr ci und deploy
+templates/ # index.html
+tests/ # test_app.py
+app.py # Flask App
+requirements.txt # Abhängigkeiten inkl gunicorn
+pytest.ini # pythonpath = .
+.env.example # Vorlage für lokale Variablen
+
+yaml
+Code kopieren
+
+---
+
+## Lokal starten
+
+bash
+# einmalig Abhängigkeiten installieren
+py -m pip install -r requirements.txt
+
+# optional venv
+# py -m venv .venv && .\.venv\Scripts\activate
+
+# Tests lokal
+py -m pytest -q
+
+# App lokal starten
+py -m flask --app app run
+Hinweis Emoji eingeben
+Windows Taste und Punkt drücken dann das Smiley wählen.
+
+GitHub Flow in diesem Repo
+Issue mit der Vorlage Feature Anforderung anlegen
+
+Branch aus dev erstellen z B feature/happiness
+
+Code bauen committen pushen
+
+PR feature → dev erstellen PR CI läuft automatisch und zeigt pytest grün
+
+Nach Review in dev mergen
+den neuen Feature Ast nicht löschen so verlangt es die LB
+
+Release PR dev → main Merge löst Build Test und Azure Deployment aus
+
+CI Workflows
+PR CI nur Tests auf dev
+.github/workflows/pr-ci.yml
+
+yaml
+Code kopieren
+name: PR CI
+on:
+  pull_request:
+    branches: ["dev"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: pytest -q
+Deploy auf Azure bei main
+.github/workflows/deploy.yml baut testet und liefert auf Azure aus.
+
+Azure Deployment
+Azure App Service erstellt Python 3.12 Linux Region Switzerland North
+
+Konfiguration → Anwendungseinstellungen PASSWORD gesetzt
+
+Konfiguration → Allgemeine Einstellungen → Startbefehl
+
+bash
+Code kopieren
+gunicorn --bind=0.0.0.0:$PORT --timeout 600 app:app
+GitHub → Settings → Secrets and variables → Actions
+
+AZURE_WEBAPP_NAME = tagebbbuch-twin
+
+AZURE_WEBAPP_PUBLISH_PROFILE = gesamter XML Inhalt aus Veröffentlichungsprofil
+
+Merge nach main löst den Deploy Workflow aus
+
+pre commit Hooks
+bash
+Code kopieren
+py -m pip install pre-commit
 pre-commit install
 pre-commit install --hook-type pre-push
-```
-- Black formatiert bei jedem Commit
-- Pytest läuft bei jedem Push
+bei jedem Commit formatiert black den Code
 
-## GitHub Flow kurz und knapp
+bei jedem Push läuft pytest
 
-1. Issue anlegen mit Vorlage **Feature Anforderung**
-2. Branch aus `dev` erstellen, z.B. `feature/entry-happiness`
-3. Code bauen, committen, pushen
-4. Pull Request **auf `dev`** erstellen → Tests laufen automatisch
-5. Nach Review in `dev` mergen
-6. Release: PR von `dev` nach `main` → Merge nach `main` triggert Deployment
+Tests
+Die LB prüft die neue Funktion mit diesem Verhalten
 
-## Azure Deployment (App Service)
+POST auf /add_entry mit content und happiness
 
-1. Azure App Service für **Python** erstellen (Linux)
-2. In Azure **Konfiguration** die App‑Einstellung `PASSWORD` setzen. Beim LB Wunsch: setze es auf deinen GitHub Benutzernamen
-3. In GitHub **Settings → Secrets and variables → Actions** anlegen:
-   - `AZURE_WEBAPP_NAME` = Name der App Service Instanz (z.B. `tagebbbuch-twin`)
-   - `AZURE_WEBAPP_PUBLISH_PROFILE` = Inhalt der Publish Profile Datei aus Azure (Download im Portal)
-4. Auf `main` pushen oder PR mergen → Workflow deployt automatisch
+Antwort ist Redirect 302 auf /
 
-### Live URL
+der erste Eintrag in entries enthält Text und das Smiley
 
-Trage hier deine App URL ein, z.B.:  
-`https://tagebbbuch-twin.azurewebsites.net/`
+Implementierung in app.py Kurzsicht
 
-## Tests
+python
+Code kopieren
+@app.route("/add_entry", methods=["POST"])
+def add_entry():
+    content = request.form.get("content", "").strip()
+    happiness = request.form.get("happiness", "").strip()
+    if content:
+        entries.append(Entry(content=content, happiness=happiness or ""))
+    return redirect(url_for("index"))
+Evidenz
+Issue #3 Eintrag mit Stimmung speichern
+https://github.com/twinjn/TwinJeganLB-324/issues/3
 
-```bash
-pytest -q
-```
+PR feature → dev Tests grün
+https://github.com/twinjn/TwinJeganLB-324/pull/9
 
-## Bewertung Checkliste
+Actions Lauf zum PR
+HIER DEN LINK AUS PR CHECKS DETAILS EINFÜGEN
 
-- Labels und Issue Vorlage vorhanden
-- pre-commit formatiert beim Commit
-- pre-push testet
-- PR auf `dev` triggert Tests
-- Merge nach `main` triggert Azure Deployment
-- README erklärt Installation, Hooks und Secrets
-- Neue Funktionalität inkl. Test wurde via Feature Branch und PR umgesetzt
-```
-PR CI Test
+PR dev → main Deploy grün
+https://github.com/twinjn/TwinJeganLB-324/pull/14
+
+Actions Lauf zum Deploy
+HIER DEN LINK AUS CHECKS DETAILS DES RELEASE PR EINFÜGEN
+
+Live URL
+https://tagebbbuch-twin.azurewebsites.net
+
+Troubleshooting kurz
+504 GatewayTimeout
+Startbefehl wie oben setzen Deploy neu anstoßen Logstream prüfen
+
+gunicorn nicht gefunden
+gunicorn in requirements.txt aufnehmen neu deployen
+
+ModuleNotFoundError app
+Datei heißt app.py Flask Variable heißt app
+
+Hinweis zu Secrets
+Die Datei .env gehört nicht ins Repo. Bitte nur .env.example versionieren.
+In Azure ist PASSWORD als App Einstellung gesetzt.
