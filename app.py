@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # loads .env if present
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -12,7 +12,6 @@ class Entry:
     content: str
     happiness: str
 
-# a very small in-memory "database" for practice
 entries = []
 
 @app.route("/")
@@ -24,16 +23,5 @@ def add_entry():
     content = request.form.get("content", "").strip()
     happiness = request.form.get("happiness", "").strip()
     if content:
-        entries.append(Entry(content=content, happiness=happiness or ""))
-    # redirect to index as required by the test
+        entries.append(Entry(content=content, happiness=happiness or "🙂"))
     return redirect(url_for("index"))
-
-if __name__ == "__main__":
-    app.run(debug=True)
-
-# in add_entry():
-content = request.form.get("content", "").strip()
-happiness = request.form.get("happiness", "").strip()
-if content:
-    entries.append(Entry(content=content, happiness=happiness or "🙂"))
-return redirect(url_for("index"))
