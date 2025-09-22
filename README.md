@@ -64,7 +64,7 @@ pre-commit install --hook-type pre-push
 
 ### Live URL
 
-tagebbbuch-twin-e9h4gwfbf4btage9.switzerlandnorth-01.azurewebsites.net
+[tagebbbuch-twin-e9h4gwfbf4btage9.switzerlandnorth-01.azurewebsites.net](https://tagebbbuch-twin-e9h4gwfbf4btage9.switzerlandnorth-01.azurewebsites.net/)
 
 ---
 
