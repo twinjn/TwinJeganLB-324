@@ -69,4 +69,4 @@ pytest -q
 - README erklärt Installation, Hooks und Secrets
 - Neue Funktionalität inkl. Test wurde via Feature Branch und PR umgesetzt
 ```
-
+PR CI Test
