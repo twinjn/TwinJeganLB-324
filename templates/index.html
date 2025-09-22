@@ -1,22 +1,11 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tagebbbuch</title>
-</head>
-<body>
-  <h1>Tagebbbuch</h1>
-  <p>Azure PASSWORD: {{ password }}</p>
-  <form action="/add_entry" method="post">
-    <input name="content" placeholder="Eintrag" required />
-    <input name="happiness" placeholder="😊" />
-    <button type="submit">Add</button>
-  </form>
-  <ul>
-    {% for e in entries %}
-      <li>{{ e.content }} — {{ e.happiness }}</li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+<form action="/add_entry" method="post">
+  <input name="content" placeholder="Eintrag" required />
+  <input name="happiness" placeholder="😊" />
+  <button type="submit">Add</button>
+</form>
+
+<ul>
+  {% for e in entries %}
+    <li>{{ e.content }} — {{ e.happiness }}</li>
+  {% endfor %}
+</ul>

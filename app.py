@@ -23,5 +23,7 @@ def add_entry():
     content = request.form.get("content", "").strip()
     happiness = request.form.get("happiness", "").strip()
     if content:
+
         entries.append(Entry(content=content, happiness=happiness or "🙂"))
-    return redirect(url_for("index"))
+   return redirect(url_for("index"))
+
